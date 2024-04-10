@@ -71,6 +71,28 @@ userController.userDetailsByID = async function (req, res) {
             });
         }
     });
+
+
+    
+}
+
+
+userController.updateUser = async function (req, res) {
+    User.updateUser(req, (err, data) => {
+        try {
+            res.status(201).send({ 
+                status: 1, 
+                message: 'User Details updated', 
+                data: data.data 
+            });
+        } catch (e) {
+            res.status(400).send({
+                status: 0,
+                message: 'Unable to update user details',
+                error: err
+            });
+        }
+    });    
 }
 
 

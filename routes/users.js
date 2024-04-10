@@ -24,4 +24,9 @@ router.get('/userDetails/:id', function(req, res) {
   usersController.userDetailsByID(req,res);
 });
 
+router.post('/updateUser/:id',auth.grantAccess('admin','data'), function(req, res) {
+  usersController.updateUser(req,res);
+});
+
+
 module.exports = router;

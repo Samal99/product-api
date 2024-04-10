@@ -61,12 +61,12 @@ class userModel {
             const skip = resultsPerPage * (page - 1);
             let email = ''
             let contact = ''
-            if(reqBody.email){
+            if (reqBody.email) {
                 email = reqBody.email
-            } if(reqBody.contact){
+            } if (reqBody.contact) {
                 contact = reqBody.contact
             }
-            console.log('email & contact',email,contact)
+            console.log('email & contact', email, contact)
             let totalRecords = 0
             connection.query(
                 `SELECT COUNT(*) FROM users`,
@@ -77,9 +77,9 @@ class userModel {
             connection.query(
                 `SELECT * FROM users 
                 ${email || contact ? 'where' : ''}
-                ${ email ? `email = '${email}'` : '' } 
+                ${email ? `email = '${email}'` : ''} 
                 ${email && contact ? '&&' : ''}
-                ${ contact ? `contact = '${contact}'` : '' } 
+                ${contact ? `contact = '${contact}'` : ''} 
                 limit ${skip},${resultsPerPage}`,
                 (error, results) => {
                     const data = Object.values(JSON.parse(JSON.stringify(results)))
@@ -88,7 +88,7 @@ class userModel {
                         return callback('Unable to fetch users details now', null)
                     } else {
                         if (data) {
-                            return callback(null, { data: data , totalRecords : totalRecords[0]['COUNT(*)']});
+                            return callback(null, { data: data, totalRecords: totalRecords[0]['COUNT(*)'] });
                         } else {
                             return callback('Unable to fetch users details now', null)
                         }
@@ -110,9 +110,49 @@ class userModel {
                         return callback('Unable to fetch users details now', null)
                     } else {
                         if (data) {
-                            return callback(null, { data: data});
+                            return callback(null, { data: data });
                         } else {
                             return callback('Unable to fetch users details now', null)
+                        }
+                    }
+                }
+            );
+        });
+    }
+
+    static updateUser(req, callback) {
+        return new Promise(async (resolve, reject) => {
+            const userId = req.params.id
+            const reqBody = req.body
+            console.log(reqBody)
+            let f_name = '';
+            let email = '';
+            if(reqBody.email){
+                email = reqBody.email
+            }
+            if(reqBody.f_name){
+                f_name = reqBody.f_name
+            }
+            console.log(userId,f_name,email)
+            // UPDATE Customers
+            // SET ContactName = 'Alfred Schmidt', City = 'Frankfurt'
+            // WHERE CustomerID = 1;
+            connection.query(
+                `UPDATE users
+                SET ${email ?  `email = '${email}'${email && f_name ? ',' : ''}`: '' }
+                ${f_name ?  `f_name = '${f_name}'`: '' }
+                WHERE user_id = ${userId}`,
+                (error, results) => {
+                    // const data = Object.values(JSON.parse(JSON.stringify(results)))
+                    const data = results
+                    if (error) {
+                        console.log(error)
+                        return callback('Unable to update users details now', null)
+                    } else {
+                        if (data) {
+                            return callback(null, { data: data });
+                        } else {
+                            return callback('Unable to update users details now', null)
                         }
                     }
                 }
