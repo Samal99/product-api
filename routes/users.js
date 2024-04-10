@@ -28,5 +28,9 @@ router.post('/updateUser/:id',auth.grantAccess('admin','data'), function(req, re
   usersController.updateUser(req,res);
 });
 
+router.post('/updatePasswordByUser/:id',function(req, res) {
+  usersController.updatePasswordByUser(req,res);
+});
+
 
 module.exports = router;

@@ -133,17 +133,12 @@ class userModel {
             if(reqBody.f_name){
                 f_name = reqBody.f_name
             }
-            console.log(userId,f_name,email)
-            // UPDATE Customers
-            // SET ContactName = 'Alfred Schmidt', City = 'Frankfurt'
-            // WHERE CustomerID = 1;
             connection.query(
                 `UPDATE users
                 SET ${email ?  `email = '${email}'${email && f_name ? ',' : ''}`: '' }
                 ${f_name ?  `f_name = '${f_name}'`: '' }
                 WHERE user_id = ${userId}`,
                 (error, results) => {
-                    // const data = Object.values(JSON.parse(JSON.stringify(results)))
                     const data = results
                     if (error) {
                         console.log(error)
@@ -155,6 +150,69 @@ class userModel {
                             return callback('Unable to update users details now', null)
                         }
                     }
+                }
+            );
+        });
+    }
+
+    static updatePasswordByUser(req, callback) {
+        return new Promise(async (resolve, reject) => {
+            const userId = req.params.id
+            const reqBody = req.body
+            console.log(reqBody)
+            let email = '';
+            let password = '';
+            let newPassword = '';
+            if(reqBody.email){
+                email = reqBody.email
+            }if(reqBody.password){
+                password = reqBody.password
+            }if(reqBody.newPassword){
+                newPassword = reqBody.newPassword
+            }if(!newPassword){
+                return callback('Please enter your new password', null);
+            }
+            // UPDATE Customers
+            // SET ContactName = 'Alfred Schmidt', City = 'Frankfurt'
+            // WHERE CustomerID = 1;
+            connection.query(
+                'SELECT * FROM users WHERE email = ?',
+                [email],
+                (error, results) => {
+                    if (results.length === 0) {
+                        return callback('User not found', null);
+                    }
+                    const user = results[0];
+                    bcrypt.compare(password, user.password, async (err, isValid) => {
+                        if (err) {
+                            return callback(null, null);
+                        }
+                        if (!isValid) {
+                            return callback('Your Current Password Is Incurrect', null);
+                        }if(isValid){
+                            const encryptedPassword = await bcrypt.hash(newPassword, saltRounds)
+                            connection.query(
+                                `UPDATE users
+                                SET PASSWORD = '${encryptedPassword}'
+                                WHERE user_id = ${userId}`,
+                                (error, results) => {
+                                    const data = results
+                                    if (error) {
+                                        console.log(error)
+                                        return callback('Unable to reset password now', null)
+                                    } else {
+                                        if (data) {
+                                            return callback(null, { data: data });
+                                        } else {
+                                            return callback('Unable to update users password now', null)
+                                        }
+                                    }
+                                }
+                            );
+                        }
+                       
+                        // return callback(null, { user: Object.values(JSON.parse(JSON.stringify(results))), token: token });
+                    })
                 }
             );
         });

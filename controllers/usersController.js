@@ -95,5 +95,22 @@ userController.updateUser = async function (req, res) {
     });    
 }
 
+userController.updatePasswordByUser = async function (req, res) {
+    User.updatePasswordByUser(req, (err, data) => {
+        try {
+            res.status(201).send({ 
+                status: 1, 
+                message: 'Password has been updated successfully', 
+                data: data.data 
+            });
+        } catch (e) {
+            res.status(400).send({
+                status: 0,
+                message: 'Unable to reset your password',
+                error: err
+            });
+        }
+    });    
+}
 
 module.exports = userController
