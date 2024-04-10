@@ -127,16 +127,16 @@ class userModel {
             console.log(reqBody)
             let f_name = '';
             let email = '';
-            if(reqBody.email){
+            if (reqBody.email) {
                 email = reqBody.email
             }
-            if(reqBody.f_name){
+            if (reqBody.f_name) {
                 f_name = reqBody.f_name
             }
             connection.query(
                 `UPDATE users
-                SET ${email ?  `email = '${email}'${email && f_name ? ',' : ''}`: '' }
-                ${f_name ?  `f_name = '${f_name}'`: '' }
+                SET ${email ? `email = '${email}'${email && f_name ? ',' : ''}` : ''}
+                ${f_name ? `f_name = '${f_name}'` : ''}
                 WHERE user_id = ${userId}`,
                 (error, results) => {
                     const data = results
@@ -155,7 +155,7 @@ class userModel {
         });
     }
 
-    static updatePasswordByUser(req, callback) {
+    static resetPasswordByUser(req, callback) {
         return new Promise(async (resolve, reject) => {
             const userId = req.params.id
             const reqBody = req.body
@@ -163,18 +163,15 @@ class userModel {
             let email = '';
             let password = '';
             let newPassword = '';
-            if(reqBody.email){
+            if (reqBody.email) {
                 email = reqBody.email
-            }if(reqBody.password){
+            } if (reqBody.password) {
                 password = reqBody.password
-            }if(reqBody.newPassword){
+            } if (reqBody.newPassword) {
                 newPassword = reqBody.newPassword
-            }if(!newPassword){
+            } if (!newPassword) {
                 return callback('Please enter your new password', null);
             }
-            // UPDATE Customers
-            // SET ContactName = 'Alfred Schmidt', City = 'Frankfurt'
-            // WHERE CustomerID = 1;
             connection.query(
                 'SELECT * FROM users WHERE email = ?',
                 [email],
@@ -189,7 +186,7 @@ class userModel {
                         }
                         if (!isValid) {
                             return callback('Your Current Password Is Incurrect', null);
-                        }if(isValid){
+                        } if (isValid) {
                             const encryptedPassword = await bcrypt.hash(newPassword, saltRounds)
                             connection.query(
                                 `UPDATE users
@@ -210,9 +207,53 @@ class userModel {
                                 }
                             );
                         }
-                       
+
                         // return callback(null, { user: Object.values(JSON.parse(JSON.stringify(results))), token: token });
                     })
+                }
+            );
+        });
+    }
+
+
+    static updatePasswordByAdmin(req, callback) {
+        return new Promise(async (resolve, reject) => {
+            const reqBody = req.body
+            let email = '';
+            let newPassword = '';
+            if (reqBody.email) {
+                email = reqBody.email
+            } if (reqBody.newPassword) {
+                newPassword = reqBody.newPassword
+            }
+            connection.query(
+                'SELECT * FROM users WHERE email = ?',
+                [email],
+                async (error, results) => {
+                    if (results.length === 0) {
+                        return callback('User not found', null);
+                    }
+                    const user = results[0];
+                    const encryptedPassword = await bcrypt.hash(newPassword, saltRounds)
+                    connection.query(
+                                `UPDATE users
+                                SET PASSWORD = '${encryptedPassword}'
+                                WHERE email = '${email}'`,
+                        (error, results) => {
+                            const data = results
+                            if (error) {
+                                console.log(error)
+                                return callback('Unable to reset password now', null)
+                            } else {
+                                if (data) {
+                                    return callback(null, { data: data });
+                                } else {
+                                    return callback('Unable to update users password now', null)
+                                }
+                            }
+                        }
+                    );
+
                 }
             );
         });

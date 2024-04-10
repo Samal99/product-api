@@ -95,8 +95,26 @@ userController.updateUser = async function (req, res) {
     });    
 }
 
-userController.updatePasswordByUser = async function (req, res) {
-    User.updatePasswordByUser(req, (err, data) => {
+userController.resetPasswordByUser = async function (req, res) {
+    User.resetPasswordByUser(req, (err, data) => {
+        try {
+            res.status(201).send({ 
+                status: 1, 
+                message: 'Password has been reset successfully', 
+                data: data.data 
+            });
+        } catch (e) {
+            res.status(400).send({
+                status: 0,
+                message: 'Unable to reset your password',
+                error: err
+            });
+        }
+    });    
+}
+
+userController.updatePasswordByAdmin = async function (req, res) {
+    User.updatePasswordByAdmin(req, (err, data) => {
         try {
             res.status(201).send({ 
                 status: 1, 
@@ -106,7 +124,7 @@ userController.updatePasswordByUser = async function (req, res) {
         } catch (e) {
             res.status(400).send({
                 status: 0,
-                message: 'Unable to reset your password',
+                message: 'Unable to update your password',
                 error: err
             });
         }
