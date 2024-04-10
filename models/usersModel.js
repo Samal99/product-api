@@ -238,7 +238,7 @@ class userModel {
                     connection.query(
                                 `UPDATE users
                                 SET PASSWORD = '${encryptedPassword}'
-                              
+                                WHERE email = '${email}'`,
                             
                         (error, results) => {
                             const data = results
