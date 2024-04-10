@@ -46,7 +46,7 @@ class userModel {
                         const token = jwt.sign({ user: user.email }, config.KEY, {
                             expiresIn: '1h',
                         });
-                        return callback(null, { user: user, token: token });
+                        return callback(null, { user: Object.values(JSON.parse(JSON.stringify(results))), token: token });
                     })
                 }
             );
@@ -89,6 +89,28 @@ class userModel {
                     } else {
                         if (data) {
                             return callback(null, { data: data , totalRecords : totalRecords[0]['COUNT(*)']});
+                        } else {
+                            return callback('Unable to fetch users details now', null)
+                        }
+                    }
+                }
+            );
+        });
+    }
+
+    static userDetails(req, callback) {
+        return new Promise(async (resolve, reject) => {
+            const userId = req.params.id
+            connection.query(
+                `SELECT * FROM users where user_id = ${userId}`,
+                (error, results) => {
+                    const data = Object.values(JSON.parse(JSON.stringify(results)))
+                    if (error) {
+                        console.log(error)
+                        return callback('Unable to fetch users details now', null)
+                    } else {
+                        if (data) {
+                            return callback(null, { data: data});
                         } else {
                             return callback('Unable to fetch users details now', null)
                         }

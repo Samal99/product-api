@@ -11,6 +11,7 @@ exports.grantAccess = function (modName, permName) {
             try {
                 const decoded = jwt.verify(token, config.KEY);
                 if (decoded) {
+                    console.log(decoded)
                     connection.query(
                         'SELECT * FROM users WHERE email = ?',
                         [decoded.user],

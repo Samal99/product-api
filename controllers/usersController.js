@@ -28,7 +28,8 @@ userController.login = async function (req, res) {
     const reqBody = req.body
     User.loginUser(reqBody.email, reqBody.password, (err, user) => {
         if (user) {
-            res.status(201).json({ status: 1, message: 'Login Successfuly', token: user.token });
+            console.log(user)
+            res.status(201).json({ status: 1, message: 'Login Successfuly',data : user.user[0]['user_id'], token: user.token });
         } else {
             res.status(400).json({
                 status: 0,
@@ -43,11 +44,29 @@ userController.list = async function (req, res) {
     const limit = 2
     User.userList(req, (err, data) => {
         try {
-            res.status(201).send({ status: 1, message: 'List of users',totalRecords : data.totalRecords , data: data.data });
+            res.status(201).send({ status: 1, message: 'List of users', totalRecords: data.totalRecords, data: data.data });
         } catch (e) {
             res.status(400).send({
                 status: 0,
                 message: 'Unable to fetch users',
+                error: err
+            });
+        }
+    });
+}
+
+userController.userDetailsByID = async function (req, res) {
+    User.userDetails(req, (err, data) => {
+        try {
+            res.status(201).send({ 
+                status: 1, 
+                message: 'User Details', 
+                data: data.data 
+            });
+        } catch (e) {
+            res.status(400).send({
+                status: 0,
+                message: 'Unable to fetch user details',
                 error: err
             });
         }

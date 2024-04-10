@@ -16,9 +16,12 @@ router.post('/login', function(req, res) {
   usersController.login(req,res);
 });
 
-router.get('/list', function(req, res) {
+router.get('/list',auth.grantAccess('admin','data'), function(req, res) {
   usersController.list(req,res);
 });
 
+router.get('/userDetails/:id', function(req, res) {
+  usersController.userDetailsByID(req,res);
+});
 
 module.exports = router;
