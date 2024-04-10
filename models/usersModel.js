@@ -59,6 +59,14 @@ class userModel {
             const resultsPerPage = reqBody['itemPerPage'] > 0 ? reqBody['itemPerPage'] : 10;
             const page = reqBody['page'] >= 1 ? reqBody['page'] : 1;
             const skip = resultsPerPage * (page - 1);
+            let email = ''
+            let contact = ''
+            if(reqBody.email){
+                email = reqBody.email
+            } if(reqBody.contact){
+                contact = reqBody.contact
+            }
+            console.log('email & contact',email,contact)
             let totalRecords = 0
             connection.query(
                 `SELECT COUNT(*) FROM users`,
@@ -67,10 +75,16 @@ class userModel {
                 }
             );
             connection.query(
-                `SELECT * FROM users limit ${skip},${resultsPerPage}`,
+                `SELECT * FROM users 
+                ${email || contact ? 'where' : ''}
+                ${ email ? `email = '${email}'` : '' } 
+                ${email && contact ? '&&' : ''}
+                ${ contact ? `contact = '${contact}'` : '' } 
+                limit ${skip},${resultsPerPage}`,
                 (error, results) => {
                     const data = Object.values(JSON.parse(JSON.stringify(results)))
                     if (error) {
+                        console.log(error)
                         return callback('Unable to fetch users details now', null)
                     } else {
                         if (data) {
@@ -79,7 +93,6 @@ class userModel {
                             return callback('Unable to fetch users details now', null)
                         }
                     }
-
                 }
             );
         });
