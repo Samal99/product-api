@@ -16,5 +16,9 @@ router.post('/login', function(req, res) {
   usersController.login(req,res);
 });
 
+router.get('/list', function(req, res) {
+  usersController.list(req,res);
+});
+
 
 module.exports = router;

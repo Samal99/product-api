@@ -3,25 +3,6 @@ var User = require('../models/usersModel')
 var userController = {}
 
 
-userController.creates = async function (req, res) {
-    const reqBody = req.body
-    try {
-        const record = new User(reqBody)
-        const saveRecord = await record.save()
-        res.status(200).send({
-            status: 1,
-            messages: 'User Crerated Successfuly.',
-            data: saveRecord
-        })
-    } catch (e) {
-        res.status(400).send({
-            status: 0,
-            messages: 'Failed to create user.',
-            error: e
-        })
-    }
-}
-
 
 userController.create = async function (req, res) {
     const reqBody = req.body
@@ -47,7 +28,7 @@ userController.login = async function (req, res) {
     const reqBody = req.body
     User.loginUser(reqBody.email, reqBody.password, (err, user) => {
         if (user) {
-            res.status(201).json({ status: 1, message: 'Login Successfuly', token : user.token });
+            res.status(201).json({ status: 1, message: 'Login Successfuly', token: user.token });
         } else {
             res.status(400).json({
                 status: 0,
@@ -58,6 +39,20 @@ userController.login = async function (req, res) {
 
 }
 
+userController.list = async function (req, res) {
+    const limit = 2
+    User.userList(req, (err, data) => {
+        try {
+            res.status(201).send({ status: 1, message: 'List of users',totalRecords : data.totalRecords , data: data.data });
+        } catch (e) {
+            res.status(400).send({
+                status: 0,
+                message: 'Unable to fetch users',
+                error: err
+            });
+        }
+    });
+}
 
 
 module.exports = userController

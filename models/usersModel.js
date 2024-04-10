@@ -36,7 +36,7 @@ class userModel {
                     }
                     const user = results[0];
                     bcrypt.compare(password, user.password, (err, isValid) => {
-           
+
                         if (err) {
                             return callback(null, null);
                         }
@@ -46,9 +46,39 @@ class userModel {
                         const token = jwt.sign({ user: user.email }, config.KEY, {
                             expiresIn: '1h',
                         });
-                        return callback(null, {user : user, token : token});
+                        return callback(null, { user: user, token: token });
                     })
+                }
+            );
+        });
+    }
 
+    static userList(req, callback) {
+        return new Promise(async (resolve, reject) => {
+            const reqBody = req.body
+            const resultsPerPage = reqBody['itemPerPage'] > 0 ? reqBody['itemPerPage'] : 10;
+            const page = reqBody['page'] >= 1 ? reqBody['page'] : 1;
+            const skip = resultsPerPage * (page - 1);
+            let totalRecords = 0
+            connection.query(
+                `SELECT COUNT(*) FROM users`,
+                (error, results) => {
+                    totalRecords = Object.values(JSON.parse(JSON.stringify(results)))
+                }
+            );
+            connection.query(
+                `SELECT * FROM users limit ${skip},${resultsPerPage}`,
+                (error, results) => {
+                    const data = Object.values(JSON.parse(JSON.stringify(results)))
+                    if (error) {
+                        return callback('Unable to fetch users details now', null)
+                    } else {
+                        if (data) {
+                            return callback(null, { data: data , totalRecords : totalRecords[0]['COUNT(*)']});
+                        } else {
+                            return callback('Unable to fetch users details now', null)
+                        }
+                    }
 
                 }
             );
