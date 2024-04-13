@@ -8,7 +8,7 @@ userController.create = async function (req, res) {
     const reqBody = req.body
     // const { f_name, contact, email, password } = req.body
     try {
-        await User.createUser(reqBody.f_name, reqBody.contact, reqBody.email, reqBody.password, reqBody.position, reqBody.role, reqBody.ref_id);
+        await User.createUser(reqBody.f_name, reqBody.contact, reqBody.email, reqBody.password, reqBody.position, reqBody.role, reqBody.ref_id, reqBody.isActive);
         res.status(201).send({
             status: 1,
             message: "User created successfully",
@@ -29,7 +29,7 @@ userController.login = async function (req, res) {
     User.loginUser(reqBody.email, reqBody.password, (err, user) => {
         if (user) {
             console.log(user)
-            res.status(201).json({ status: 1, message: 'Login Successfuly',data : user.user[0]['user_id'], token: user.token });
+            res.status(201).json({ status: 1, message: 'Login Successfuly', data: user.user[0]['user_id'], token: user.token });
         } else {
             res.status(400).json({
                 status: 0,
@@ -58,10 +58,10 @@ userController.list = async function (req, res) {
 userController.userDetailsByID = async function (req, res) {
     User.userDetails(req, (err, data) => {
         try {
-            res.status(201).send({ 
-                status: 1, 
-                message: 'User Details', 
-                data: data.data 
+            res.status(201).send({
+                status: 1,
+                message: 'User Details',
+                data: data.data
             });
         } catch (e) {
             res.status(400).send({
@@ -73,17 +73,17 @@ userController.userDetailsByID = async function (req, res) {
     });
 
 
-    
+
 }
 
 
 userController.updateUser = async function (req, res) {
     User.updateUser(req, (err, data) => {
         try {
-            res.status(201).send({ 
-                status: 1, 
-                message: 'User Details updated', 
-                data: data.data 
+            res.status(201).send({
+                status: 1,
+                message: 'User Details updated',
+                data: data.data
             });
         } catch (e) {
             res.status(400).send({
@@ -92,16 +92,16 @@ userController.updateUser = async function (req, res) {
                 error: err
             });
         }
-    });    
+    });
 }
 
 userController.resetPasswordByUser = async function (req, res) {
     User.resetPasswordByUser(req, (err, data) => {
         try {
-            res.status(201).send({ 
-                status: 1, 
-                message: 'Password has been reset successfully', 
-                data: data.data 
+            res.status(201).send({
+                status: 1,
+                message: 'Password has been reset successfully',
+                data: data.data
             });
         } catch (e) {
             res.status(400).send({
@@ -110,16 +110,16 @@ userController.resetPasswordByUser = async function (req, res) {
                 error: err
             });
         }
-    });    
+    });
 }
 
 userController.updatePasswordByAdmin = async function (req, res) {
     User.updatePasswordByAdmin(req, (err, data) => {
         try {
-            res.status(201).send({ 
-                status: 1, 
-                message: 'Password has been updated successfully', 
-                data: data.data 
+            res.status(201).send({
+                status: 1,
+                message: 'Password has been updated successfully',
+                data: data.data
             });
         } catch (e) {
             res.status(400).send({
@@ -128,7 +128,104 @@ userController.updatePasswordByAdmin = async function (req, res) {
                 error: err
             });
         }
-    });    
+    });
+}
+
+userController.deleteUser = async function (req, res) {
+    User.deleteUser(req, (err, data) => {
+        try {
+            res.status(201).send({
+                status: 1,
+                message: 'User has been deleted successfully',
+                data: data.data
+            });
+        } catch (e) {
+            res.status(400).send({
+                status: 0,
+                message: 'Unable to delete user',
+                error: err
+            });
+        }
+    });
+}
+
+// updateRole
+userController.updateRole = async function (req, res) {
+    User.updateRole(req, (err, data) => {
+        try {
+            res.status(201).send({
+                status: 1,
+                message: 'User role has been updated successfuly',
+                data: data.data
+            });
+        } catch (e) {
+            res.status(400).send({
+                status: 0,
+                message: 'Unable to update user role',
+                error: err
+            });
+        }
+    });
+}
+
+// userRegistratios
+userController.userRegistratios = async function (req, res) {
+    const reqBody = req.body
+    try {
+        await User.userRegistratios(reqBody.f_name, reqBody.contact, reqBody.email, reqBody.password, reqBody.position, reqBody.role, reqBody.ref_id);
+        // User.userRegistratios(reqBody.f_name, reqBody.contact, reqBody.email, reqBody.password, reqBody.position, reqBody.role, reqBody.ref_id, (err, data) => {
+        res.status(201).send({
+            status: 1,
+            message: 'User creation request has been created successfuly',
+            data: req.body
+        });
+    } catch (e) {
+        res.status(400).send({
+            status: 0,
+            message: 'Unable to create user creation request.',
+            error: e.sqlMessage
+        });
+    };
+}
+
+userController.accoutApprovalList = async function (req, res) {
+    User.accoutApprovalList(req, (err, data) => {
+        try {
+            res.status(201).send({
+                status: 1,
+                message: 'List of uses need to approve',
+                data: data.data
+            });
+        } catch (e) {
+            res.status(400).send({
+                status: 0,
+                message: 'Unable tofetch user details',
+                error: err
+            });
+        }
+    });
+}
+
+
+userController.activeAccount = async function (req, res) {
+    User.activeAccount(req, (err, data) => {
+        try {
+            res.status(201).send({
+                status: 1,
+                message: 'Account has been activated successfuly.',
+                data: data.data
+            });
+        } catch (e) {
+            res.status(400).send({
+                status: 0,
+                message: 'Unable to active the account.',
+                error: err
+            });
+        }
+    });
+
+
+
 }
 
 module.exports = userController

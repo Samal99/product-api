@@ -8,12 +8,13 @@ const connection = require('../db.js')
 
 class userModel {
 
-    static createUser(f_name, contact, email, password, position, role, ref_id) {
+    static createUser(f_name, contact, email, password, position, role, ref_id,isActive) {
         return new Promise(async (resolve, reject) => {
+            const isActive = true
             const encryptedPassword = await bcrypt.hash(password, saltRounds)
             connection.query(
-                "INSERT INTO users (f_name , contact, email, password, position,role, ref_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                [f_name, contact, email, encryptedPassword, position, role, ref_id],
+                "INSERT INTO users (f_name , contact, email, password, position,role, ref_id,isActive) VALUES (?, ?, ?, ?, ?, ?, ?,?)",
+                [f_name, contact, email, encryptedPassword, position, role, ref_id,isActive],
                 (error, results) => {
                     if (error) {
                         reject(error);
@@ -35,6 +36,10 @@ class userModel {
                         return callback('User not found', null);
                     }
                     const user = results[0];
+                    console.log('user.isActive',user.isActive)
+                    if(!user.isActive){
+                        return callback('You account is not yet verified, Please contact with your admin for aproval', null);
+                    }
                     bcrypt.compare(password, user.password, (err, isValid) => {
 
                         if (err) {
@@ -236,10 +241,10 @@ class userModel {
                     const user = results[0];
                     const encryptedPassword = await bcrypt.hash(newPassword, saltRounds)
                     connection.query(
-                                `UPDATE users
+                        `UPDATE users
                                 SET PASSWORD = '${encryptedPassword}'
                                 WHERE email = '${email}'`,
-                            
+
                         (error, results) => {
                             const data = results
                             if (error) {
@@ -260,7 +265,177 @@ class userModel {
         });
     }
 
+    static deleteUser(req, callback) {
+        return new Promise(async (resolve, reject) => {
+            const userId = req.params.id
+            const reqBody = req.body
+            connection.query(
+                `SELECT * FROM users
+                WHERE user_id = ${userId}`,
+                (error, results) => {
+                    const data = Object.values(JSON.parse(JSON.stringify(results)))
+                    if (error) {
+                        console.log(error)
+                        return callback('User is not found.', null)
+                    } else {
+                        if (data.length) {
+                            connection.query(
+                                `DELETE FROM users
+                                WHERE user_id = ${userId}`,
+                                (error, results) => {
+                                    const data = results
+                                    if (error) {
+                                        console.log(error)
+                                        return callback('Unable to delete user now', null)
+                                    } else {
+                                        if (data) {
+                                            return callback(null, { data: data });
+                                        } else {
+                                            return callback('Unable to delete users now', null)
+                                        }
+                                    }
+                                }
+                            );
+                        } else {
+                            return callback('Unable to find the user at this moment.', null)
+                        }
+                    }
+                }
+            );
+            
+        });
+    }
+
+    static updateRole(req, callback) {
+        return new Promise(async (resolve, reject) => {
+            const userId = req.params.id
+            const reqBody = req.body
+            let role = '';
+            if (reqBody.role) {
+                role = reqBody.role
+            }if(!role){
+                return callback('Please add the role.', null)
+            }
+            connection.query(
+                `SELECT * FROM users where user_id = ${userId}`,
+                (error, results) => {
+                    const data = Object.values(JSON.parse(JSON.stringify(results)))
+                    if (error) {
+                        console.log(error)
+                        return callback('Unable to fetch users details now', null)
+                    } else {
+                        if (data.length) {
+                            connection.query(
+                                `UPDATE users
+                                SET role = '${role}'
+                                WHERE user_id = ${userId}`,
+                                (error, results) => {
+                                    const data = results
+                                    if (error) {
+                                        console.log(error)
+                                        return callback('Unable to update users details now', null)
+                                    } else {
+                                        if (data) {
+                                            return callback(null, { data: data });
+                                        } else {
+                                            return callback('Unable to update users details now', null)
+                                        }
+                                    }
+                                }
+                            );
+                        } else {
+                            return callback('User not found', null)
+                        }
+                    }
+                }
+            );
+           
+        });
+    }
+
+    static userRegistratios(f_name, contact, email, password, position,ref_id) {
+        return new Promise(async (resolve, reject) => {
+            const encryptedPass = await bcrypt.hash(password, saltRounds)
+            connection.query(
+                "INSERT INTO users (f_name , contact, email, password, position, ref_id) VALUES (?, ?, ?, ?, ?, ?)",
+                [f_name, contact, email, encryptedPass, position,ref_id],
+                (error, results) => {
+                    if (error) {
+                        reject(error);
+                    } else {
+                        resolve(results);
+                    }
+                }
+            );
+        });
+    }
+
+    static accoutApprovalList(req, callback) {
+        return new Promise(async (resolve, reject) => {
+            connection.query(
+                `SELECT * FROM users where isActive = 0`,
+                (error, results) => {
+                    const data = Object.values(JSON.parse(JSON.stringify(results)))
+                    if (error) {
+                        console.log(error)
+                        return callback('Unable to fetch users details now', null)
+                    } else {
+                        if (data) {
+                            return callback(null, { data: data });
+                        } else {
+                            return callback('Unable to fetch users details now', null)
+                        }
+                    }
+                }
+            );
+        });
+    }
+
+    static activeAccount(req, callback) {
+        return new Promise(async (resolve, reject) => {
+            const userId = req.params.id
+            const reqBody = req.body
+            connection.query(
+                `SELECT * FROM users where user_id = ${userId}`,
+                (error, results) => {
+                    const data = Object.values(JSON.parse(JSON.stringify(results)))
+                    console.log(data.length)
+                    if (error) {
+                        console.log(error)
+                        return callback('Unable to fetch users details now', null)
+                    } else {
+                        if (data.length) {
+                            connection.query(
+                                `UPDATE users
+                                SET isActive = ${reqBody.isActive}
+                                WHERE user_id = ${userId}`,
+                                (error, results) => {
+                                    console.log(results)
+                                    const data = Object.values(JSON.parse(JSON.stringify(results)))
+                                    if (error) {
+                                        console.log(error)
+                                        return callback('Unable to active accout right now', null)
+                                    } else {
+                                        if (data) {
+                                            return callback(null, { data: data });
+                                        } else {
+                                            return callback('Unable to fetch users details now', null)
+                                        }
+                                    }
+                                }
+                            );
+                        } else {
+                            return callback('User is not present', null)
+                        }
+                    }
+                }
+            );
+        });
+    }
+
 }
+
+
 
 module.exports = userModel
 

@@ -36,7 +36,26 @@ router.post('/updatePasswordByAdmin',auth.grantAccess('admin','data'), function(
   usersController.updatePasswordByAdmin(req,res);
 });
 
+router.delete('/deleteUser/:id',auth.grantAccess('admin','data'), function(req, res) {
+  usersController.deleteUser(req,res);
+});
+
+router.post('/updateRole/:id',auth.grantAccess('admin','data'), function(req, res) {
+  usersController.updateRole(req,res);
+});
+
+// userRegistratios
+router.post('/userRegistratios',function(req, res) {
+  usersController.userRegistratios(req,res);
+});
+
+router.get('/accoutApprovalList',auth.grantAccess('admin','data'),function(req, res) {
+  usersController.accoutApprovalList(req,res);
+});
 
 
+router.post('/activeAccount/:id',auth.grantAccess('admin','data'),function(req, res) {
+  usersController.activeAccount(req,res);
+});
 
 module.exports = router;
