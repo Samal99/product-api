@@ -7,6 +7,8 @@ var mongoose = require('mongoose');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+var rolesRouter = require('./routes/roles');
+
 const connection = mongoose.connect('mongodb://127.0.0.1:27017/admin-dashboard',{ useNewUrlParser: true, useUnifiedTopology : true });
 var app = express();
 
@@ -22,6 +24,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use('/roles', rolesRouter);
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
