@@ -16,7 +16,7 @@ router.post('/login', function(req, res) {
   usersController.login(req,res);
 });
 
-router.get('/list',auth.grantAccess('admin','data'), function(req, res) {
+router.get('/list', function(req, res) {
   usersController.list(req,res);
 });
 

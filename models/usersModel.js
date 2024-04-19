@@ -38,7 +38,7 @@ class userModel {
                     const user = results[0];
                     console.log('user.isActive',user.isActive)
                     if(!user.isActive){
-                        return callback('You account is not yet verified, Please contact with your admin for aproval', null);
+                        return callback('You account is not yet verified, Please contact with your admin for approval', null);
                     }
                     bcrypt.compare(password, user.password, (err, isValid) => {
 

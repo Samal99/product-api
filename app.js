@@ -4,14 +4,15 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var mongoose = require('mongoose');
-
+const cors = require('cors') 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var rolesRouter = require('./routes/roles');
 
+
 const connection = mongoose.connect('mongodb://127.0.0.1:27017/admin-dashboard',{ useNewUrlParser: true, useUnifiedTopology : true });
 var app = express();
-
+app.use(cors()); 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
