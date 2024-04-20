@@ -353,12 +353,12 @@ class userModel {
         });
     }
 
-    static userRegistratios(f_name, contact, email, password, position,ref_id) {
+    static userRegistratios(f_name, contact, email, password, position,ref_id,l_name) {
         return new Promise(async (resolve, reject) => {
             const encryptedPass = await bcrypt.hash(password, saltRounds)
             connection.query(
-                "INSERT INTO users (f_name , contact, email, password, position, ref_id) VALUES (?, ?, ?, ?, ?, ?)",
-                [f_name, contact, email, encryptedPass, position,ref_id],
+                "INSERT INTO users (f_name , contact, email, password, position, ref_id,l_name) VALUES (?, ?, ?, ?, ?, ?)",
+                [f_name, contact, email, encryptedPass, position,ref_id,l_name],
                 (error, results) => {
                     if (error) {
                         reject(error);

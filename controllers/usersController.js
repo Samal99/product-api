@@ -172,7 +172,7 @@ userController.updateRole = async function (req, res) {
 userController.userRegistratios = async function (req, res) {
     const reqBody = req.body
     try {
-        await User.userRegistratios(reqBody.f_name, reqBody.contact, reqBody.email, reqBody.password, reqBody.position, reqBody.role, reqBody.ref_id);
+        await User.userRegistratios(reqBody.f_name, reqBody.contact, reqBody.email, reqBody.password, reqBody.position, reqBody.role, reqBody.ref_id, reqBody.l_name,);
         // User.userRegistratios(reqBody.f_name, reqBody.contact, reqBody.email, reqBody.password, reqBody.position, reqBody.role, reqBody.ref_id, (err, data) => {
         res.status(201).send({
             status: 1,
