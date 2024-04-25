@@ -1,7 +1,18 @@
 const { token } = require('morgan')
 var User = require('../models/usersModel')
-var userController = {}
+const express = require('express');
 
+const exphbs = require('express-handlebars'); 
+const fileUpload = require('express-fileupload');
+const handlebars = exphbs.create({ extname: '.hbs',});
+
+var app = express();
+app.use(fileUpload());
+
+app.engine('.hbs', handlebars.engine);
+app.set('view engine', '.hbs');
+
+var userController = {}
 
 
 userController.create = async function (req, res) {
@@ -41,7 +52,6 @@ userController.login = async function (req, res) {
 }
 
 userController.list = async function (req, res) {
-    const limit = 2
     User.userList(req, (err, data) => {
         try {
             res.status(201).send({ status: 1, message: 'List of users', totalRecords: data.totalRecords, data: data.data });
@@ -223,9 +233,25 @@ userController.activeAccount = async function (req, res) {
             });
         }
     });
-
-
-
 }
+
+userController.uploadImage = async function (req, res) {
+    User.uploadImage(req, (err, data) => {
+        try {
+            res.status(201).send({
+                status: 1,
+                message: 'Profile image has been uploaded successfuly.',
+                data: data.data
+            });
+        } catch (e) {
+            res.status(400).send({
+                status: 0,
+                message: 'Unable to upload profile image right now.',
+                error: err
+            });
+        }
+    });
+}
+
 
 module.exports = userController

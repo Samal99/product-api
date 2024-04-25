@@ -6,15 +6,27 @@ const config = require('../config.js')
 
 const connection = require('../db.js')
 
+const express = require('express');
+
+const exphbs = require('express-handlebars');
+const fileUpload = require('express-fileupload');
+const handlebars = exphbs.create({ extname: '.hbs', });
+
+var app = express();
+app.use(fileUpload());
+
+app.engine('.hbs', handlebars.engine);
+app.set('view engine', '.hbs');
+
 class userModel {
 
-    static createUser(f_name, contact, email, password, position, role, ref_id,isActive) {
+    static createUser(f_name, contact, email, password, position, role, ref_id, isActive) {
         return new Promise(async (resolve, reject) => {
             const isActive = true
             const encryptedPassword = await bcrypt.hash(password, saltRounds)
             connection.query(
                 "INSERT INTO users (f_name , contact, email, password, position,role, ref_id,isActive) VALUES (?, ?, ?, ?, ?, ?, ?,?)",
-                [f_name, contact, email, encryptedPassword, position, role, ref_id,isActive],
+                [f_name, contact, email, encryptedPassword, position, role, ref_id, isActive],
                 (error, results) => {
                     if (error) {
                         reject(error);
@@ -36,8 +48,8 @@ class userModel {
                         return callback('User not found', null);
                     }
                     const user = results[0];
-                    console.log('user.isActive',user.isActive)
-                    if(!user.isActive){
+                    console.log('user.isActive', user.isActive)
+                    if (!user.isActive) {
                         return callback('You account is not yet verified, Please contact with your admin for approval', null);
                     }
                     bcrypt.compare(password, user.password, (err, isValid) => {
@@ -129,19 +141,17 @@ class userModel {
         return new Promise(async (resolve, reject) => {
             const userId = req.params.id
             const reqBody = req.body
-            console.log(reqBody)
-            let f_name = '';
-            let email = '';
-            if (reqBody.email) {
-                email = reqBody.email
-            }
-            if (reqBody.f_name) {
-                f_name = reqBody.f_name
-            }
+
             connection.query(
                 `UPDATE users
-                SET ${email ? `email = '${email}'${email && f_name ? ',' : ''}` : ''}
-                ${f_name ? `f_name = '${f_name}'` : ''}
+                SET f_name = '${reqBody.f_name}',
+                l_name = '${reqBody.l_name}',
+                email = '${reqBody.email}',
+                contact = '${reqBody.contact}',
+                city = '${reqBody.city}',
+                state = '${reqBody.state}',
+                address = '${reqBody.address}',
+                pin = '${reqBody.pin}'
                 WHERE user_id = ${userId}`,
                 (error, results) => {
                     const data = results
@@ -302,7 +312,7 @@ class userModel {
                     }
                 }
             );
-            
+
         });
     }
 
@@ -313,7 +323,7 @@ class userModel {
             let role = '';
             if (reqBody.role) {
                 role = reqBody.role
-            }if(!role){
+            } if (!role) {
                 return callback('Please add the role.', null)
             }
             connection.query(
@@ -349,16 +359,16 @@ class userModel {
                     }
                 }
             );
-           
+
         });
     }
 
-    static userRegistratios(f_name, contact, email, password, position,ref_id,l_name) {
+    static userRegistratios(f_name, contact, email, password, position, ref_id, l_name) {
         return new Promise(async (resolve, reject) => {
             const encryptedPass = await bcrypt.hash(password, saltRounds)
             connection.query(
                 "INSERT INTO users (f_name , contact, email, password, position, ref_id,l_name) VALUES (?, ?, ?, ?, ?, ?)",
-                [f_name, contact, email, encryptedPass, position,ref_id,l_name],
+                [f_name, contact, email, encryptedPass, position, ref_id, l_name],
                 (error, results) => {
                     if (error) {
                         reject(error);
@@ -433,7 +443,48 @@ class userModel {
         });
     }
 
-    
+    static uploadImage(req, callback) {
+        return new Promise(async (resolve, reject) => {
+            const userId = req.params.id
+            const reqBody = req.files
+            console.log(reqBody.file.name)
+            let sampleFile;
+            let uploadPath;
+            if (!req.files || Object.keys(req.files).length === 0) {
+                return callback('No files were uploaded', null)
+            }
+            sampleFile = req.files.file;
+            uploadPath = __dirname + '/upload/' + sampleFile.name;
+            console.log('uploadPath',uploadPath)
+                connection.query(
+                    `SELECT * FROM users where user_id = ${userId}`,
+                    (error, results) => {
+                        const data = Object.values(JSON.parse(JSON.stringify(results)))
+                        if (error) {
+                            console.log(error)
+                            return callback('Unable to fetch users details now', null)
+                        } else {
+                            if (data.length) {
+                                sampleFile.mv(uploadPath, function (err) {
+                                    if (err) return callback(err, null)
+                                    console.log('err',err)
+                                      connection.query(`UPDATE users SET profile_image = ? WHERE user_id =${userId}`, [sampleFile.name], (err, rows) => {
+                                        if (!err) {
+                                            return callback(null, { data: data });
+                                        } else {
+                                          console.log(err);
+                                        }
+                                      });
+                                    });
+                            
+                            } else {
+                                return callback('User is not present', null)
+                            }
+                        }
+                    }
+                );
+            });
+        }
 
 }
 

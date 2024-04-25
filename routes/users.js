@@ -3,6 +3,7 @@ var router = express.Router();
 var usersController = require('../controllers/usersController')
 var auth = require('./auth')
 
+
 /* GET users listing. */
 router.get('/', function(req, res, next) {
   res.send('respond with a resource');
@@ -16,7 +17,7 @@ router.post('/login', function(req, res) {
   usersController.login(req,res);
 });
 
-router.get('/list', function(req, res) {
+router.get('/list', auth.grantAccess('admin','data'),function(req, res) {
   usersController.list(req,res);
 });
 
@@ -24,7 +25,7 @@ router.get('/userDetails/:id', function(req, res) {
   usersController.userDetailsByID(req,res);
 });
 
-router.post('/updateUser/:id',auth.grantAccess('admin','data'), function(req, res) {
+router.post('/updateUser/:id',auth.grantAccess(), function(req, res) {
   usersController.updateUser(req,res);
 });
 
@@ -56,6 +57,10 @@ router.get('/accoutApprovalList',auth.grantAccess('admin','data'),function(req, 
 
 router.post('/activeAccount/:id',auth.grantAccess('admin','data'),function(req, res) {
   usersController.activeAccount(req,res);
+});
+
+router.post('/uploadImage/:id',auth.grantAccess(),function(req, res) {
+  usersController.uploadImage(req,res);
 });
 
 module.exports = router;

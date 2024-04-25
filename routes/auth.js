@@ -3,7 +3,7 @@ const User = require('../models/usersModel');
 const config = require('../config')
 const connection = require('../db.js')
 
-exports.grantAccess = function (modName, permName) {
+exports.grantAccess = function (modName = '', permName = '') {
     return async (req, res, next) => {
         try {
             const token = req.header('authorization');
@@ -22,7 +22,10 @@ exports.grantAccess = function (modName, permName) {
                                 const userData = results[0]
                                 if (userData) {
                                     req.email = userData.email;
-                                    const access = modName === userData.role ? next () : res.status(401).send({ status: 0, message: 'Unauthorized Access' });
+                                    // if(modName){
+                                    //     const access = modName === userData.role ? next () : res.status(401).send({ status: 0, message: 'Unauthorized Access' });
+                                    // }else{}
+                                    modName ? (modName && modName === userData.role ? next () : res.status(401).send({ status: 0, message: 'Unauthorized Access' })) : next ()
                                 } else {
                                     res.status(401).send({ status: 0, message: 'Unable to process your request' });
                                 }
