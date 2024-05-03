@@ -14,26 +14,39 @@ var multer = require('multer');
 const exphbs = require('express-handlebars'); 
 const fileUpload = require('express-fileupload');
 
-const connection = mongoose.connect('mongodb://127.0.0.1:27017/admin-dashboard',{ useNewUrlParser: true, useUnifiedTopology : true });
+// const connection = mongoose.connect('mongodb://127.0.0.1:27017/admin-dashboard',{ useNewUrlParser: true, useUnifiedTopology : true });
 var app = express();
 app.use(fileUpload());
-// Static Files
-app.use(express.static('public'));
-app.use(express.static('upload'));
-app.use(cors()); 
+var mongoose = require('mongoose');
+// var autoIncrement = require('mongoose-auto-increment-fix');
+// const autoIncrement = require('mongoose-auto-increment');
+  // autoIncrement.initialize(connection);
+
+// app.use(bodyParser.json()); // support json encoded bodies
+// app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
-
-const handlebars = exphbs.create({ extname: '.hbs',});
-app.engine('.hbs', handlebars.engine);
-app.set('view engine', '.hbs');
-
+app.set('port', process.env.PORT || 3000);
+app.use(express.static('public'));
+app.use(express.static('upload'));
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(cors());
+
+app.use('/images', express.static('images'));
+
+// const a = require('./models/upload')
+const dirPath = path.join(__dirname, './models/upload');
+app.get('/images', function (req, res) {
+  // res.sendFile(filepath);
+  console.log('__dirname',__dirname)
+  res.sendFile('register.jpg',  { root: dirPath })
+  // res.send('respond with a resource')
+});
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
