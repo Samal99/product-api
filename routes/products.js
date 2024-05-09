@@ -19,9 +19,15 @@ router.post('/updateProduct/:id', auth.grantAccess(), function (req, res) {
     productsController.updateProduct(req, res);
 });
 
+router.post('/uploadImage/:id',auth.grantAccess(),function(req, res) {
+    productsController.uploadImage(req,res);
+  });
+  
+
 router.delete('/deleteProduct/:id', auth.grantAccess(), function (req, res) {
     productsController.deleteProduct(req, res);
 });
+
 
 
 

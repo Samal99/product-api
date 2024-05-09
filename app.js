@@ -41,6 +41,9 @@ app.use('/images', express.static('images'));
 
 // const a = require('./models/upload')
 const dirPath = path.join(__dirname, './models/upload');
+const productsImagesPath = path.join(__dirname, 'models/product')
+app.use('/product/image', express.static(productsImagesPath));
+
 app.get('/images', function (req, res) {
   // res.sendFile(filepath);
   console.log('__dirname',__dirname)

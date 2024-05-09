@@ -124,11 +124,12 @@ Rakolkota Software Services PVT LTD`
             connection.query(
                 `SELECT * FROM users where user_id = ${userId}`,
                 (error, results) => {
-                    const data = Object.values(JSON.parse(JSON.stringify(results)))
                     if (error) {
                         console.log(error)
                         return callback('Unable to fetch users details now', null)
                     } else {
+                        const data = Object.values(JSON.parse(JSON.stringify(results)))
+
                         if (data) {
                             return callback(null, { data: data });
                         } else {
@@ -228,33 +229,39 @@ Rakolkota Software Services PVT LTD`
         });
     }
 
+
     static loginUser(email, password, callback) {
         return new Promise(async (resolve, reject) => {
             connection.query(
                 'SELECT * FROM users WHERE email = ?',
                 [email],
                 (error, results) => {
-                    if (results.length === 0) {
-                        return callback('User not found', null);
-                    }
-                    const user = results[0];
-                    console.log('user.isActive', user.isActive)
-                    if (!user.isActive) {
-                        return callback('You account is not yet verified, Please contact with your admin for approval', null);
-                    }
-                    bcrypt.compare(password, user.password, (err, isValid) => {
+                    if (results) {
+                        if (results && results.length === 0) {
+                            return callback('User not found', null);
+                        }
+                        const user = results[0];
+                        console.log('user.isActive', user.isActive)
+                        if (!user.isActive) {
+                            return callback('You account is not yet verified, Please contact with your admin for approval', null);
+                        }
+                        bcrypt.compare(password, user.password, (err, isValid) => {
 
-                        if (err) {
-                            return callback(null, null);
-                        }
-                        if (!isValid) {
-                            return callback('Incorrect password', null);
-                        }
-                        const token = jwt.sign({ user: user.email }, config.KEY, {
-                            expiresIn: '1h',
-                        });
-                        return callback(null, { user: Object.values(JSON.parse(JSON.stringify(results))), token: token });
-                    })
+                            if (err) {
+                                return callback(null, null);
+                            }
+                            if (!isValid) {
+                                return callback('Incorrect password', null);
+                            }
+                            const token = jwt.sign({ user: user.email }, config.KEY, {
+                                expiresIn: '1h',
+                            });
+                            return callback(null, { user: Object.values(JSON.parse(JSON.stringify(results))), token: token });
+                        })
+                    }else{
+                        return callback(error, null);
+                    }
+
                 }
             );
         });
@@ -277,7 +284,11 @@ Rakolkota Software Services PVT LTD`
             console.log('email & contact', email, contact)
             let totalRecords = 0
             connection.query(
-                `SELECT COUNT(*) FROM users`,
+                `SELECT COUNT(*) FROM users 
+                ${email || contact ? 'where' : ''}
+                ${email ? `email LIKE '%${email}%'` : ''} 
+                ${email && contact ? '&&' : ''}
+                ${contact ? `contact LIKE '%${contact}%'` : ''}`,
                 (error, results) => {
                     totalRecords = Object.values(JSON.parse(JSON.stringify(results)))
                 }
@@ -285,9 +296,9 @@ Rakolkota Software Services PVT LTD`
             connection.query(
                 `SELECT user_id,f_name,l_name,email,contact,role,ref_id,position,state,city,address,pin,profile_image_name, isActive FROM users 
                 ${email || contact ? 'where' : ''}
-                ${email ? `email = '${email}'` : ''} 
+                ${email ? `email LIKE '%${email}%'` : ''} 
                 ${email && contact ? '&&' : ''}
-                ${contact ? `contact = '${contact}'` : ''} 
+                ${contact ? `contact LIKE '%${contact}%'` : ''} 
                 ORDER BY user_id DESC
                 limit ${skip},${resultsPerPage}`,
                 (error, results) => {
@@ -314,11 +325,12 @@ Rakolkota Software Services PVT LTD`
             connection.query(
                 `SELECT * FROM users where user_id = ${userId}`,
                 (error, results) => {
-                    const data = Object.values(JSON.parse(JSON.stringify(results)))
                     if (error) {
                         console.log(error)
                         return callback('Unable to fetch users details now', null)
                     } else {
+                        const data = Object.values(JSON.parse(JSON.stringify(results)))
+
                         if (data) {
                             return callback(null, { data: data });
                         } else {
@@ -675,7 +687,7 @@ Rakolkota Software Services PVT LTD`
                                 if (err) return callback(err, null)
                                 console.log('err', err)
                                 console.log('fullFile in query', fullFile)
-                                connection.query(`UPDATE users SET profile_image = ? ,profile_image_name = '${fullFile}' WHERE user_id =${userId}`, [sampleFile.name], (err, rows) => {
+                                connection.query(`UPDATE users SET profile_image = ${sampleFile.name} ,profile_image_name = '${fullFile}' WHERE user_id =${userId}`, (err, rows) => {
                                     if (!err) {
                                         return callback(null, { data: data });
                                     } else {

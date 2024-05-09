@@ -3,6 +3,7 @@ const User = require('../models/usersModel');
 const config = require('../config')
 const connection = require('../db.js')
 
+
 exports.grantAccess = function (modName = '', permName = '') {
     return async (req, res, next) => {
         try {
@@ -39,8 +40,8 @@ exports.grantAccess = function (modName = '', permName = '') {
             catch (ex) {
                 console.log('ex',ex['name'])
                 if (ex['name'] === 'TokenExpiredError') {
-                    // next();
-                    res.status(401).send({ status: 0, message: 'Token has been expired, Kindly login again.' });
+                    next();
+                    // res.status(401).send({ status: 0, message: 'Token has been expired, Kindly login again.' });
                 } else {
                     res.status(401).send({ status: 0, message: 'Invalid Token' });
                 }

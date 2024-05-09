@@ -71,6 +71,26 @@ productController.updateProduct = async function (req, res) {
     });
 }
 
+productController.uploadImage = async function (req, res) {
+    Product.uploadImage(req, (err, data) => {
+        console.log('req',req.body)
+        console.log('err',err)
+        try {
+            res.status(201).send({
+                status: 1,
+                message: 'Aadhar card has been uploaded successfuly.',
+                data: data.data
+            });
+        } catch (e) {
+            res.status(400).send({
+                status: 0,
+                message: 'Unable to upload aadhar card right now.',
+                error: err
+            });
+        }
+    });
+}
+
 productController.deleteProduct = async function (req, res) {
     Product.deleteProduct(req, (err, data) => {
         try {
