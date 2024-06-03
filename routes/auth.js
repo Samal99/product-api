@@ -32,7 +32,6 @@ exports.grantAccess = function (modName = '', permName = '') {
                                 }
                             }
                         })
-
                 } else {
                     res.status(401).send({ status: 0, message: 'Unable to process your request' });
                 }

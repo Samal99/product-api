@@ -10,6 +10,7 @@ router.get('/', function(req, res, next) {
 });
 
 
+
 router.get('/image/:id', function(req, res) {
   usersController.image(req,res);
 });
@@ -32,6 +33,10 @@ router.post('/create', auth.grantAccess('admin','data'),function(req, res) {
 
 router.post('/login', function(req, res) {
   usersController.login(req,res);
+});
+
+router.post('/payment', function(req, res) {
+  usersController.payment(req,res);
 });
 
 router.post('/list', auth.grantAccess('admin','data'),function(req, res) {

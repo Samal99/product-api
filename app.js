@@ -9,6 +9,10 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var rolesRouter = require('./routes/roles');
 var productRouter = require('./routes/products');
+var offerRouter = require('./routes/offer');
+var couponRouter = require('./routes/coupon');
+var cartRouter = require('./routes/cart')
+var orderRouter = require('./routes/order')
 
 var multer = require('multer');
 const exphbs = require('express-handlebars'); 
@@ -42,6 +46,9 @@ app.use('/images', express.static('images'));
 // const a = require('./models/upload')
 const dirPath = path.join(__dirname, './models/upload');
 const productsImagesPath = path.join(__dirname, 'models/product')
+const editerImagesPath = path.join(__dirname, 'models/editer')
+
+app.use('/editer/image', express.static(editerImagesPath));
 app.use('/product/image', express.static(productsImagesPath));
 
 app.get('/images', function (req, res) {
@@ -55,6 +62,10 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/roles', rolesRouter);
 app.use('/product', productRouter);
+app.use('/offer', offerRouter);
+app.use('/coupon', couponRouter);
+app.use('/cart', cartRouter);
+app.use('/order',orderRouter)
 
 
 

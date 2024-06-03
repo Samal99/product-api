@@ -2,27 +2,27 @@ const { token } = require('morgan')
 var User = require('../models/usersModel')
 const express = require('express');
 const path = require('path');
-const exphbs = require('express-handlebars'); 
+const exphbs = require('express-handlebars');
 const fileUpload = require('express-fileupload');
 const userModel = require('../models/usersModel');
-const handlebars = exphbs.create({ extname: '.hbs',});
+const handlebars = exphbs.create({ extname: '.hbs', });
 
 var app = express();
 app.use(fileUpload());
 app.engine('.hbs', handlebars.engine);
 app.set('view engine', '.hbs');
-app.use(express.urlencoded({extended : false}));
+app.use(express.urlencoded({ extended: false }));
 var userController = {}
 // const a = require('../models/upload')
 
 
 userController.image = async function (req, res) {
-   
+
     User.image(req, (err, data) => {
         const dirPath = path.join(__dirname, '../models/upload');
         try {
             const imageFile = data.data[0]['profile_image_name']
-            res.sendFile(`${imageFile}`,  { root: dirPath })
+            res.sendFile(`${imageFile}`, { root: dirPath })
 
         } catch (e) {
             res.status(400).send({
@@ -34,13 +34,17 @@ userController.image = async function (req, res) {
     });
 }
 
+
+
+
+
 userController.getAadhar = async function (req, res) {
-   console.log('aadhar')
+    console.log('aadhar')
     User.getAadhar(req, (err, data) => {
         const dirPath = path.join(__dirname, '../models/upload');
         try {
             const imageFile = data.data[0]['aadhar_image_name']
-            res.sendFile(`${imageFile}`,  { root: dirPath })
+            res.sendFile(`${imageFile}`, { root: dirPath })
 
         } catch (e) {
             res.status(400).send({
@@ -53,12 +57,12 @@ userController.getAadhar = async function (req, res) {
 }
 
 userController.getPan = async function (req, res) {
-   
+
     User.getPan(req, (err, data) => {
         const dirPath = path.join(__dirname, '../models/upload');
         try {
             const imageFile = data.data[0]['pan_image_name']
-            res.sendFile(`${imageFile}`,  { root: dirPath })
+            res.sendFile(`${imageFile}`, { root: dirPath })
 
         } catch (e) {
             res.status(400).send({
@@ -72,12 +76,12 @@ userController.getPan = async function (req, res) {
 
 
 userController.getAddress = async function (req, res) {
-   
+
     User.getAddress(req, (err, data) => {
         const dirPath = path.join(__dirname, '../models/upload');
         try {
             const imageFile = data.data[0]['address_image_name']
-            res.sendFile(`${imageFile}`,  { root: dirPath })
+            res.sendFile(`${imageFile}`, { root: dirPath })
 
         } catch (e) {
             res.status(400).send({
@@ -94,7 +98,7 @@ userController.create = async function (req, res) {
     const reqBody = req.body
     // const { f_name, contact, email, password } = req.body
     try {
-        await User.createUser(reqBody.f_name, reqBody.l_name,reqBody.contact, reqBody.email, reqBody.password, reqBody.position, reqBody.role, reqBody.ref_id);
+        await User.createUser(reqBody.f_name, reqBody.l_name, reqBody.contact, reqBody.email, reqBody.password, reqBody.position, reqBody.role, reqBody.ref_id);
         res.status(201).send({
             status: 1,
             message: "User created successfully",
@@ -115,7 +119,7 @@ userController.login = async function (req, res) {
     User.loginUser(reqBody.email, reqBody.password, (err, user) => {
         if (user) {
             console.log(user)
-            res.status(201).json({ status: 1, message: 'Login Successfuly', data: user.user[0]['user_id'], type: user.user[0]['role'],token: user.token });
+            res.status(201).json({ status: 1, message: 'Login Successfuly', data: user.user[0]['user_id'], type: user.user[0]['role'], token: user.token });
         } else {
             res.status(400).json({
                 status: 0,
@@ -258,7 +262,7 @@ userController.updateRole = async function (req, res) {
 userController.userRegistratios = async function (req, res) {
     const reqBody = req.body
     try {
-        await User.userRegistratios(reqBody.f_name, reqBody.l_name,reqBody.contact, reqBody.email, reqBody.password, reqBody.position, reqBody.role, reqBody.ref_id, reqBody.l_name,);
+        await User.userRegistratios(reqBody.f_name, reqBody.l_name, reqBody.contact, reqBody.email, reqBody.password, reqBody.position, reqBody.role, reqBody.ref_id, reqBody.l_name,);
         // User.userRegistratios(reqBody.f_name, reqBody.contact, reqBody.email, reqBody.password, reqBody.position, reqBody.role, reqBody.ref_id, (err, data) => {
         res.status(201).send({
             status: 1,
@@ -313,7 +317,7 @@ userController.activeAccount = async function (req, res) {
 
 userController.uploadImage = async function (req, res) {
     User.uploadImage(req, (err, data) => {
-        console.log('req',req.body)
+        console.log('req', req.body)
         try {
             res.status(201).send({
                 status: 1,
@@ -332,7 +336,7 @@ userController.uploadImage = async function (req, res) {
 
 userController.uploadAadhar = async function (req, res) {
     User.uploadAadhar(req, (err, data) => {
-        console.log('req',req.body)
+        console.log('req', req.body)
         try {
             res.status(201).send({
                 status: 1,
@@ -351,7 +355,7 @@ userController.uploadAadhar = async function (req, res) {
 
 userController.uploadPan = async function (req, res) {
     User.uploadPan(req, (err, data) => {
-        console.log('req',req.body)
+        console.log('req', req.body)
         try {
             res.status(201).send({
                 status: 1,
@@ -370,7 +374,7 @@ userController.uploadPan = async function (req, res) {
 
 userController.uploadAddress = async function (req, res) {
     User.uploadAddress(req, (err, data) => {
-        console.log('req',req.body)
+        console.log('req', req.body)
         try {
             res.status(201).send({
                 status: 1,
