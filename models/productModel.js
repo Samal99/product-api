@@ -72,7 +72,7 @@ class productModel {
         let conditions = [];
         if (reqBody.prod_name) {
             prod_name = reqBody.prod_name
-            conditions.push(`prod_name LIKE '%${prod_name}%'`);
+            conditions.push(`prod_name LIKE '%${prod_name}%' or category LIKE '%${prod_name}%' `);
         }
         if (reqBody.user_id) {
             user_id = reqBody.user_id
@@ -101,6 +101,7 @@ class productModel {
                     // console.log('totalRecords',totalRecords)
                 }
             );
+            
             connection.query(
                 sqlQuery,
                 (error, results) => {

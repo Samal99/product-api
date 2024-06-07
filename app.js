@@ -13,7 +13,7 @@ var offerRouter = require('./routes/offer');
 var couponRouter = require('./routes/coupon');
 var cartRouter = require('./routes/cart')
 var orderRouter = require('./routes/order')
-
+const mysql = require("mysql");
 var multer = require('multer');
 const exphbs = require('express-handlebars'); 
 const fileUpload = require('express-fileupload');
@@ -22,6 +22,7 @@ const fileUpload = require('express-fileupload');
 var app = express();
 app.use(fileUpload());
 var mongoose = require('mongoose');
+const awsConnection = require('./awsDB');
 // var autoIncrement = require('mongoose-auto-increment-fix');
 // const autoIncrement = require('mongoose-auto-increment');
   // autoIncrement.initialize(connection);
@@ -43,6 +44,7 @@ app.use(cors());
 
 app.use('/images', express.static('images'));
 
+
 // const a = require('./models/upload')
 const dirPath = path.join(__dirname, './models/upload');
 const productsImagesPath = path.join(__dirname, 'models/product')
@@ -57,6 +59,55 @@ app.get('/images', function (req, res) {
   res.sendFile('register.jpg',  { root: dirPath })
   // res.send('respond with a resource')
 });
+
+
+
+const dbConfig = {
+  host: (process.env.awsHost), 
+  port:  (process.env.awsPort),                  
+  user: (process.env.awsUser),          
+  password: (process.env.awsPass)  
+};
+app.get('/databases', (req, res) => {
+  // Create a connection to the database
+  const connection = mysql.createConnection(dbConfig);
+  console.log('connection', connection)
+
+  // res.json({ connection: JSON.parse(connection) });
+
+  // Connect to the database
+  connection.connect((err) => {
+    if (err) {
+      console.error('Error connecting to the database:', err.stack);
+      return res.status(500).json({ error: 'Database connection failed', details: err.message });
+    }
+    console.log('Connected to the database as id ' + connection.threadId);
+
+    // Query to list all databases
+    connection.query('SHOW DATABASES', (err, results, fields) => {
+      if (err) {
+        console.error('Error executing query:', err.stack);
+        return res.status(500).json({ error: 'Query execution failed', details: err.message });
+      }
+      console.log('Databases:', results);
+
+      // Close the connection
+      connection.end((err) => {
+        if (err) {
+          console.error('Error closing the connection:', err.stack);
+          return res.status(500).json({ error: 'Failed to close connection', details: err.message });
+        }
+        console.log('Connection closed.');
+      });
+
+      res.json({ databases: results });
+    });
+  });
+
+
+});
+
+
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
